@@ -1,0 +1,10 @@
+__pycache__/
+venv/
+
+model/
+tokenizer/
+
+.idea/
+.vscode/
+
+.env
