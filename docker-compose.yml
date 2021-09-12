@@ -2,5 +2,24 @@ version: "3"
 
 services: 
   bot:
+    restart: always
     build: .
     env_file: .env
+    depends_on:
+      - db
+    networks:
+      - internal_net
+      - external_net
+
+  db:
+    restart: always
+    image: postgres:13-alpine
+    env_file: .env
+    networks:
+      - internal_net
+
+networks:
+  external_net:
+  internal_net:
+    internal: true
+
