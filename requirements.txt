@@ -1,4 +1,4 @@
 git+https://github.com/2021-hknu-cd-hate-speech-classification/model.git@main#hate_speech_classification_model
 discord.py      ~= 1.6.0
 torch           ~= 1.9.0
-psycopg2        ~= 2.9.0
+psycopg2-binary ~= 2.9.0

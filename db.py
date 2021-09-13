@@ -7,23 +7,22 @@ class EosaDatabase:
         self.__conn = pg.connect(host=os.environ["POSTGRES_HOSTNAME"],
                                  user=os.environ["POSTGRES_USER"],
                                  password=os.environ["POSTGRES_PASSWORD"],
-                                 port=os.environ["POSTGRES_PORT"],
-                                 database="eosa")
+                                 port=os.environ["POSTGRES_PORT"])
 
         cursor = self.__conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS detect_log ("
-                       "    user_id INTEGER,"
-                       "    guild_id INTEGER,"
+                       "    user_id BIGINT,"
+                       "    guild_id BIGINT,"
                        "    chat_txt TEXT,"
                        "    score REAL"
                        ")")
-        cursor.commit()
+        self.__conn.commit()
 
     def add_detect_log(self, user_id: int, guild_id: int, txt: str, score: float):
         cursor = self.__conn.cursor()
         cursor.execute("INSERT INTO detect_log(user_id, guild_id, chat_txt, score) VALUES (%s, %s, %s, %s)",
                        (user_id, guild_id, txt, score))
-        cursor.commit()
+        self.__conn.commit()
 
     def get_guild_detected_log(self, guild_id: int) -> str:
         cursor = self.__conn.cursor()
