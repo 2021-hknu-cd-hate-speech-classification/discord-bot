@@ -1,52 +1,43 @@
 import os
-import discord
+import hikari
 import torch
-from hate_speech_classification_model import HateSpeechClassifier
-
 import util
 import db
+from hate_speech_classification_model import HateSpeechClassifier
 
-# https://discord.com/api/oauth2/authorize?client_id=823899168942456922&permissions=8258&scope=bot
 
-client = discord.Client()
-token = os.environ["DISCORD_TOKEN"]
-
-MODEL_PATH = os.environ["MODEL_PATH"]
-model: HateSpeechClassifier = torch.load(MODEL_PATH, map_location="cpu")
+bot = hikari.GatewayBot(token=os.environ["DISCORD_TOKEN"])
+model: HateSpeechClassifier = torch.load(os.environ["MODEL_PATH"], map_location="cpu")
 eosa_db = db.EosaDatabase()
 
 
-@client.event
-async def on_ready():
-    print("login")
-
-
-@client.event
-async def on_message(message):
-    if message.author.bot:
+@bot.listen(hikari.GuildMessageCreateEvent)
+async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
+    if not event.is_human or len(event.content) < 5:
         return None
 
-    if message.content.startswith("!"):
-        await message.add_reaction("⏭️")
+    cleaned_msg = util.clean_discord_markdown(event.content)
+    score = model.infer(cleaned_msg)
+    await event.message.add_reaction(f"{int(score[1] * 10)}\uFE0F\u20E3")
+
+    if score[1] >= 0.7:
+        eosa_db.add_detect_log(event.author_id, event.guild_id, event.content, score[1])
+        await event.message.add_reaction("🤬")
+
+
+@bot.listen(hikari.InteractionCreateEvent)
+async def ping(event: hikari.InteractionCreateEvent) -> None:
+    if event.interaction.command_name == "ping":
+        await event.interaction.create_initial_response(4, "pong!")
         return None
 
-    if message.content.startswith("?"):
-        log = eosa_db.get_guild_detected_log(message.guild.id)
-        await message.reply(log)
 
-    if len(message.content) >= 5:
-        cleaned_msg = util.clean_discord_markdown(message.content)
-        score = model.infer(cleaned_msg)
-        print(message.content, float(score[1]))
-        await message.add_reaction(f"{int(score[1] * 10)}\uFE0F\u20E3")
+@bot.listen(hikari.InteractionCreateEvent)
+async def log(event: hikari.InteractionCreateEvent) -> None:
+    if event.interaction.command_name == "log":
+        logs = eosa_db.get_guild_detected_log(event.interaction.guild_id)
+        await event.interaction.create_initial_response(4, logs)
+        return None
 
-        if score[1] >= 0.7:
-            eosa_db.add_detect_log(message.author.id, message.guild.id, cleaned_msg, score[1])
-            await message.add_reaction("🤬")
 
-    else:
-        await message.add_reaction("😑")
-
-    return None
-
-client.run(token)
+bot.run()
