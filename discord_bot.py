@@ -20,9 +20,14 @@ async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
     score = model.infer(cleaned_msg)
     await event.message.add_reaction(f"{int(score[1] * 10)}\uFE0F\u20E3")
 
+    # 점수가 0.7점 이상일 경우 리액션 후 DB에 등록
     if score[1] >= 0.7:
         eosa_db.add_detect_log(event.author_id, event.guild_id, event.content, score[1])
         await event.message.add_reaction("🤬")
+
+    # 등록된 악플 횟수가 3회 이상일 경우 추방
+    if eosa_db.get_user_detected_count(event.author_id, event.guild_id) >= 3:
+        await event.get_guild().kick(event.author_id)
 
 
 @bot.listen(hikari.InteractionCreateEvent)

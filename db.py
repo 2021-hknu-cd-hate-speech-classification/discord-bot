@@ -34,9 +34,9 @@ class EosaDatabase:
 
         return result
 
-    def get_user_detected_count(self, user_id: int, guild_id: int) -> str:
+    def get_user_detected_count(self, user_id: int, guild_id: int) -> int:
         cursor = self.__conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM detect_log WHERE user_id=%s AND guild_id=%s",
                        (user_id, guild_id))
 
-        return f"{cursor.fetchone()[0]}"
+        return int(cursor.fetchone()[0])
