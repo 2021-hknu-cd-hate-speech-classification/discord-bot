@@ -25,13 +25,15 @@ class EosaDatabase:
                        (user_id, guild_id, txt, score))
         self.__conn.commit()
 
-    def get_guild_detected_log(self, guild_id: int) -> str:
+    def get_user_detected_log(self, user_id: int, guild_id: int) -> str:
         cursor = self.__conn.cursor()
-        cursor.execute("SELECT user_id, chat_txt, score FROM detect_log WHERE guild_id=%s", (guild_id,))
-        result = "유저 ID: 텍스트 (점수)\n=============================\n"
+        cursor.execute("SELECT log_id, chat_txt, score FROM detect_log WHERE user_id=%s AND guild_id=%s",
+                       (user_id, guild_id,))
+
+        result = "[로그 ID] 텍스트 (점수)\n=============================\n"
         for row in cursor:
-            user_id, txt, score = row
-            result += f"{user_id}: {txt} ({score})\n"
+            log_id, txt, score = row
+            result += f"[{log_id}] {txt} ({score})\n"
 
         return result
 
