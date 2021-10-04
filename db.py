@@ -11,6 +11,7 @@ class EosaDatabase:
 
         cursor = self.__conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS detect_log ("
+                       "    log_id SERIAL PRIMARY KEY,"
                        "    user_id BIGINT,"
                        "    guild_id BIGINT,"
                        "    chat_txt TEXT,"
