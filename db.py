@@ -41,3 +41,17 @@ class EosaDatabase:
                        (user_id, guild_id))
 
         return int(cursor.fetchone()[0])
+
+    def delete_log_by_user_id(self, user_id: int, guild_id: int):
+        cursor = self.__conn.cursor()
+        cursor.execute("DELETE FROM detect_log WHERE user_id=%s AND guild_id=%s",
+                       (user_id, guild_id))
+
+        self.__conn.commit()
+
+    def delete_log_by_log_id(self, log_id: int, guild_id: int):
+        cursor = self.__conn.cursor()
+        cursor.execute("DELETE FROM detect_log WHERE log_id=%s AND guild_id=%s",
+                       (log_id, guild_id))
+
+        self.__conn.commit()
