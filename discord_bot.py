@@ -26,7 +26,11 @@ async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
 
         if eosa_db.get_user_detected_count(event.author_id, event.guild_id) >= 2:
             # 등록된 악플 횟수가 2회일 경우 추방 후 기록 삭제
-            await event.get_guild().kick(event.author_id)
+            try:
+                await event.get_guild().kick(event.author_id)
+            except hikari.ForbiddenError:
+                pass
+
             eosa_db.delete_log_by_user_id(event.author_id, event.guild_id)
         else:
             # 2회 이상이 아닐 경우 DB에 등록
