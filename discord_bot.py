@@ -14,7 +14,7 @@ model.freeze()
 
 @bot.listen(hikari.GuildMessageCreateEvent)
 async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
-    if not event.is_human or len(event.content) < 5:
+    if not event.is_human or event.content is None or len(event.content) < 5:
         return None
 
     cleaned_msg = util.clean_discord_markdown(event.content)
