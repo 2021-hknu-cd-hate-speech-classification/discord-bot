@@ -47,7 +47,7 @@ async def ping(event: hikari.InteractionCreateEvent) -> None:
 @bot.listen(hikari.InteractionCreateEvent)
 async def log(event: hikari.InteractionCreateEvent) -> None:
     if event.interaction.command_name == "log":
-        logs = eosa_db.get_user_detected_log(event.interaction.author_id, event.interaction.guild_id)
+        logs = eosa_db.get_user_detected_log(event.interaction.user.id, event.interaction.guild_id)
         await event.interaction.create_initial_response(4, logs)
 
     return None
