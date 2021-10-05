@@ -9,6 +9,7 @@ from hate_speech_classification_model import HateSpeechClassifier
 bot = hikari.GatewayBot(token=os.environ["DISCORD_TOKEN"])
 model: HateSpeechClassifier = torch.load(os.environ["MODEL_PATH"], map_location="cpu")
 eosa_db = db.EosaDatabase()
+model.freeze()
 
 
 @bot.listen(hikari.GuildMessageCreateEvent)
