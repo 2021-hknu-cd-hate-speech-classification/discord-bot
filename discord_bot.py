@@ -53,4 +53,13 @@ async def log(event: hikari.InteractionCreateEvent) -> None:
     return None
 
 
+@bot.listen(hikari.InteractionCreateEvent)
+async def user_log(event: hikari.InteractionCreateEvent) -> None:
+    if event.interaction.command_name == "user-log":
+        logs = eosa_db.get_user_detected_log(event.interaction.options[0].value, event.interaction.guild_id)
+        await event.interaction.create_initial_response(4, logs)
+
+    return None
+
+
 bot.run()
