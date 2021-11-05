@@ -20,7 +20,7 @@ async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
 
     cleaned_msg = util.clean_discord_markdown(event.content)
     score = model.infer(cleaned_msg)
-    logging.info(model.tokenizer.tokenize(cleaned_msg), score)
+    logging.info(f"{model.tokenizer.tokenize(cleaned_msg)} {score}")
 
     # 점수가 0.8점 이상일 경우 리액션 후 DB에 등록
     if score[1] >= 0.8:
