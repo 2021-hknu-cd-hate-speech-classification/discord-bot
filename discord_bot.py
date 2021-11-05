@@ -3,6 +3,7 @@ import hikari
 import torch
 import util
 import db
+import logging
 from hate_speech_classification_model import HateSpeechClassifier
 
 
@@ -19,10 +20,10 @@ async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
 
     cleaned_msg = util.clean_discord_markdown(event.content)
     score = model.infer(cleaned_msg)
-    await event.message.add_reaction(f"{int(score[1] * 10)}\uFE0F\u20E3")
+    logging.info(model.tokenizer.tokenize(cleaned_msg), score)
 
-    # 점수가 0.7점 이상일 경우 리액션 후 DB에 등록
-    if score[1] >= 0.7:
+    # 점수가 0.8점 이상일 경우 리액션 후 DB에 등록
+    if score[1] >= 0.8:
         await event.message.add_reaction("🤬")
 
         if eosa_db.get_user_detected_count(event.author_id, event.guild_id) >= 2:
