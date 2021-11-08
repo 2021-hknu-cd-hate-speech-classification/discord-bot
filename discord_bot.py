@@ -11,7 +11,7 @@ bot = hikari.GatewayBot(token=os.environ["DISCORD_TOKEN"])
 model: HateSpeechClassifier = torch.load(os.environ["MODEL_PATH"], map_location="cpu")
 eosa_db = db.EosaDatabase()
 model.freeze()
-THRESHOLD = os.environ["THRESHOLD"] if ("THRESHOLD" in os.environ) else 0.725
+THRESHOLD = float(os.environ["THRESHOLD"]) if ("THRESHOLD" in os.environ) else 0.725
 
 
 @bot.listen(hikari.GuildMessageCreateEvent)
