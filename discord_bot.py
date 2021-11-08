@@ -11,6 +11,7 @@ bot = hikari.GatewayBot(token=os.environ["DISCORD_TOKEN"])
 model: HateSpeechClassifier = torch.load(os.environ["MODEL_PATH"], map_location="cpu")
 eosa_db = db.EosaDatabase()
 model.freeze()
+THRESHOLD = os.environ["THRESHOLD"] if ("THRESHOLD" in os.environ) else 0.725
 
 
 @bot.listen(hikari.GuildMessageCreateEvent)
@@ -22,8 +23,8 @@ async def get_message(event: hikari.GuildMessageCreateEvent) -> None:
     score = model.infer(cleaned_msg)
     logging.info(f"{model.tokenizer.tokenize(cleaned_msg)} {score}")
 
-    # 점수가 0.725점 이상일 경우 리액션 후 DB에 등록
-    if score[1] >= 0.725:
+    # 점수가 THRESHOLD 이상일 경우 리액션 후 DB에 등록
+    if score[1] >= THRESHOLD:
         await event.message.add_reaction("🤬")
 
         if eosa_db.get_user_detected_count(event.author_id, event.guild_id) >= 2:
